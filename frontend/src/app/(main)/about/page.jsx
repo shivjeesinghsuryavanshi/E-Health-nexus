@@ -1,43 +1,43 @@
 import React from 'react'
 
-const About = () => {
+const Contact = () => {
   return (
-    <div className="bg-white py-6 sm:py-8 lg:py-12">
-      <div className="mx-auto max-w-screen-xl px-4 md:px-8">
-        <div className="grid gap-8 md:grid-cols-2 lg:gap-12">
-          <div>
-            <div className="h-64 overflow-hidden rounded-lg bg-gray-100 shadow-lg md:h-auto">
-              <img src="https://images.unsplash.com/photo-1610465299996-30f240ac2b1c?auto=format&q=75&fit=crop&w=600&h=750" loading="lazy" alt="Photo by Martin Sanchez" class="h-full w-full object-cover object-center" />
-            </div>
+    <div><div class="bg-white py-6 sm:py-8 lg:py-12">
+    <div class="mx-auto max-w-screen-2xl px-4 md:px-8">
+      
+      <div class="mb-10 md:mb-16">
+        <h2 class="mb-4 text-center text-2xl font-bold text-gray-800 md:mb-6 lg:text-3xl">About</h2>
+  
+        <p class="mx-auto max-w-screen-md text-center text-gray-500 md:text-lg">Opportunities come from connections, so never underestimate the power of staying in touch</p>
+      </div>
+      
+  
+      <div class="grid gap-6 sm:grid-cols-2">
+        <a href="#" class="group relative flex h-80 items-end overflow-hidden rounded-lg bg-gray-100 p-4 shadow-lg">
+          <img src="https://png.pngtree.com/thumb_back/fh260/background/20230614/pngtree-cartoon-image-of-a-bearded-man-with-glasses-image_2876117.jpg" loading="lazy" alt="Photo by Fakurian Design" class="absolute inset-0 h-full w-full object-cover object-center transition duration-200 group-hover:scale-110" />
+  
+          <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-gray-800 via-transparent to-transparent opacity-50"></div>
+  
+          <div class="relative flex flex-col">
+            <span class="text-gray-300">Services</span>
+            <span class="text-lg font-semibold text-white lg:text-xl">Shiv77847784@gmail.com</span>
           </div>
-
-          <div className="md:pt-8">
-            <p className="text-center font-bold text-indigo-500 md:text-left">Who we are</p>
-
-            <h1 className="mb-4 text-center text-2xl font-bold text-gray-800 sm:text-3xl md:mb-6 md:text-left">Our competitive advantage</h1>
-
-            <p className="mb-6 text-gray-500 sm:text-lg md:mb-8">
-            
-
-              We, Shiv Jee Singh and Saniya Srivastava, are driven by a shared passion for technology and innovation. With expertise in full-stack development, Python, and cybersecurity, we thrive on solving complex problems and creating efficient solutions. Our collaborative approach, strong leadership, and commitment to continuous learning help us stay ahead in the ever-evolving tech landscape. Together, we aim to make a meaningful impact through our skills, dedication, and forward-thinking mindset.<br /><br />
-
-              
-            </p>
-
-            <h2 className="mb-2 text-center text-xl font-semibold text-gray-800 sm:text-2xl md:mb-4 md:text-left">About us</h2>
-
-            <p className="mb-6 text-gray-500 sm:text-lg md:mb-8">
-
-              We are Shiv Jee Singh and Saniya Srivastava, passionate tech enthusiasts dedicated to innovation and problem-solving. With a strong background in full-stack development, cybersecurity, and Python, we strive to build impactful solutions. Our teamwork, creativity, and technical expertise drive us to take on new challenges and deliver excellence. Together, we are committed to continuous learning and making a difference in the tech world..</p>
+        </a>
+        
+        <a href="#" class="group relative flex h-80 items-end overflow-hidden rounded-lg bg-gray-100 p-4 shadow-lg">
+          <img src="https://static.vecteezy.com/system/resources/previews/054/010/320/non_2x/an-anime-girl-with-red-hair-and-purple-jacket-photo.jpg" loading="lazy" alt="Photo by Fakurian Design" class="absolute inset-0 h-full w-full object-cover object-center transition duration-200 group-hover:scale-110" />
+  
+          <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-gray-800 via-transparent to-transparent opacity-50"></div>
+  
+          <div class="relative flex flex-col">
+            <span class="text-gray-300">Help</span>
+            <span class="text-lg font-semibold text-white lg:text-xl">jack8384899048@gmail.com</span>
           </div>
-        </div>
+        </a>
       </div>
     </div>
-
-
-
-  );
-
+  </div></div>
+  )
 }
 
-export default About;
+export default Contact
