@@ -1,16 +1,10 @@
-'use client';
-import { useFormik } from 'formik';
-import React from 'react';
-import * as Yup from 'yup';
-import { Helix, Infinity } from 'ldrs/react'
-import 'ldrs/react/Infinity.css'
-import toast from 'react-hot-toast';
-import axios from 'axios';
-import { useRouter } from 'next/navigation';
-
-
-
-
+'use client'
+import { useFormik } from 'formik'
+import React from 'react'
+import * as Yup from 'yup'
+import toast from 'react-hot-toast'
+import axios from 'axios'
+import { useRouter } from 'next/navigation'
 
 
 
@@ -40,7 +34,7 @@ const Signup = () => {
             name: '',
             email: '',
             password: '',
-            confirmPassword: ''
+            confirmPassword: '',
         },
         onSubmit: async (values, { resetForm, setSubmitting }) => {
             console.log(values);
@@ -68,6 +62,31 @@ const Signup = () => {
             // send values to backend
     );
         // validationSchema: SignupSchema
+
+        const uploadFile = (e) => {
+            const file = e.target.files[0];
+            if (!file) {
+                return toast.error('Please select a file');
+
+            }
+            console.log(file);
+
+            const fd = new FormData();
+            fd.append('file', file);
+            fd.append('upload_preset', 'E Health Nexus');
+            fd.append('cloud_name', 'dzj3wa8eg');
+
+            axios.post('https://api.cloudinary.com/v1_1/dzj3wa8eg/image/upload', fd)
+            .then((result) => {
+                console.log(result.data.url);
+                signForm.setFieldValue('avatar', result.data.url);
+                toast.success('File uploaded successfully!');
+
+            }).catch((err) => {
+              console.log(err);
+              toast.error('Fileupload failed');  
+            });
+        }
     
 
     return (
@@ -99,6 +118,8 @@ const Signup = () => {
 
                         {/* Form */}
                         <form onSubmit={signForm.handleSubmit}>
+
+                            <input type="file" onChange={uploadFile} />
                             <div className="grid gap-y-4">
                                 {/* Form Group */}
                                 <div>
@@ -216,15 +237,7 @@ const Signup = () => {
                                     disabled={signForm.isSubmitting}
                                     type="submit" className="w-full py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-hidden focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none">
 
-                                    {
-                                        signForm.isSubmitting ? (
-                                            <Infinity
-                                                size="30"
-                                                speed="2.5"
-                                                color="white"
-                                            />
-                                        ) : 'Submit'
-                                    }
+                                    
 
                                 </button>
                             </div>
