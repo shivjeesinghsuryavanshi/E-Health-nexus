@@ -10,9 +10,11 @@
   },
   "dependencies": {
     "@tabler/icons-react": "^3.31.0",
-    "axios": "^1.8.2",
+    "axios": "^1.8.4",
+    "axis": "^1.0.0",
     "clsx": "^2.1.1",
     "formik": "^2.4.6",
+    "ldrs": "^1.1.6",
     "motion": "^12.5.0",
     "next": "^15.2.1",
     "ogl": "^1.0.11",

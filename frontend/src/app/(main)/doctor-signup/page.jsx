@@ -35,14 +35,14 @@ const Signup = () => {
             name: '',
             email: '',
             password: '',
-            confirmPassword: '',
+            confirmPassword: ''
         },
         onSubmit: async (values, { resetForm, setSubmitting }) => {
             console.log(values);
 
             try {
                 const res = await axios.post(
-                    `${process.env.NEXT_PUBLIC_API_URL}/user/add`,
+                    `${process.env.NEXT_PUBLIC_API_URL}/doctor/add`,
                     values
                 );
 
@@ -237,7 +237,15 @@ const Signup = () => {
                                     disabled={signForm.isSubmitting}
                                     type="submit" className="w-full py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-hidden focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none">
 
-                                    
+                                    {
+                                        signForm.isSubmitting ? (
+                                            <Infinity
+                                                size="30"
+                                                speed="2.5"
+                                                color="white"
+                                            />
+                                        ) : 'Submit'
+                                    }
 
                                 </button>
                             </div>
