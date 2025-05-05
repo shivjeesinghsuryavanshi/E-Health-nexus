@@ -2,8 +2,8 @@
 import { useFormik } from 'formik';
 import React from 'react';
 import * as Yup from 'yup';
-import { Infinity } from 'ldrs/react';
-import 'ldrs/react/Infinity.css'
+// import { Infinity } from 'ldrs/react';
+// import 'ldrs/react/Infinity.css'
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
