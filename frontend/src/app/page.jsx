@@ -1,4 +1,4 @@
-'usew client'
+'use client'
 import { Upload, ShoppingCart, ChevronDown, ChevronRight, ChevronLeft } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
@@ -7,9 +7,9 @@ export default function EHealthNexusLanding() {
     return (
         <div className="min-h-screen bg-gray-50">
             {/* Header */}
-            <header className="bg-teal-500 py-4">
+            <header className="bg-teal-500 py-4 shadow">
                 <div className="container mx-auto px-4">
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                         {/* Logo */}
                         <div className="flex items-center">
                             <div className="mr-2">
@@ -23,7 +23,7 @@ export default function EHealthNexusLanding() {
                         </div>
 
                         {/* Search Bar */}
-                        <div className="flex-1 mx-4 max-w-2xl">
+                        <div className="flex-1 mx-4 max-w-2xl w-full">
                             <div className="flex">
                                 <div className="bg-white rounded-l-md px-3 py-2 flex items-center border-r">
                                     <span>Deliver to</span>
@@ -42,21 +42,17 @@ export default function EHealthNexusLanding() {
 
                         {/* Action Buttons */}
                         <div className="flex items-center space-x-4 text-white">
-                            <button className="flex items-center">
-
+                            <button className="flex items-center hover:text-teal-200 transition">
                                 <span>HOME</span>
                             </button>
-                            <button className="flex items-center">
+                            <button className="flex items-center hover:text-teal-200 transition">
                                 <span className="mr-1"></span>
                                 <span>CONTACT US</span>
                             </button>
-                            <button className="flex items-center">
-                                <div className="relative">
-
-                                </div>
+                            <button className="flex items-center hover:text-teal-200 transition">
                                 <span>ABOUT US</span>
                             </button>
-                            <button className="flex items-center">
+                            <button className="flex items-center hover:text-teal-200 transition">
                                 <span className="mr-1">👤</span>
                                 <span>Login / Sign up</span>
                             </button>
@@ -90,7 +86,6 @@ export default function EHealthNexusLanding() {
                                 </div>
                                 <span>Lab Tests</span>
                             </div>
-
                         </div>
                     </div>
                 </div>
@@ -147,20 +142,17 @@ export default function EHealthNexusLanding() {
             </div>
 
             {/* Hero Banner */}
-            <div className="relative bg-gray-100 py-8">
+            <div className="relative bg-gray-100 py-12 md:py-16">
                 <div className="container mx-auto px-4">
-                    <div className="flex flex-col md:flex-row items-center">
+                    <div className="flex flex-col md:flex-row items-center gap-8">
                         {/* Left Content */}
                         <div className="md:w-1/2 space-y-4 mb-8 md:mb-0">
-
-                            <h1 className="text-4xl md:text-5xl font-bold text-olive-700">
+                            <h1 className="text-4xl md:text-5xl font-bold text-teal-700">
                                 Bridging the gap
                                 <br />
                                 between patients and care—anytime, anywhere.
                             </h1>
-
                         </div>
-
                         {/* Right Image */}
                         <div className="md:w-1/2">
                             <div className="relative">
@@ -169,16 +161,11 @@ export default function EHealthNexusLanding() {
                                     alt="Kapiva Ayurvedic Products"
                                     width={600}
                                     height={400}
-                                    className="rounded-lg"
+                                    className="rounded-lg shadow"
                                 />
                             </div>
                         </div>
                     </div>
-
-
-
-
-
                 </div>
             </div>
 
@@ -247,14 +234,15 @@ export default function EHealthNexusLanding() {
                     </div>
                 </div>
             </div>
-            <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
+
+            {/* Doctor Consultation Section */}
+            <div className="flex flex-col lg:flex-row items-center justify-between gap-8 bg-white py-12 mt-8 shadow rounded-lg container mx-auto px-4">
                 {/* Left Content */}
                 <div className="lg:w-1/2">
                     <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">
                         Online doctor consultation with qualified doctors
                     </h1>
                     <p className="text-xl text-gray-600 mb-8">Starting at ₹199</p>
-
                     {/* Features */}
                     <div className="flex flex-col md:flex-row gap-6 mb-8">
                         <div className="flex items-center">
@@ -318,13 +306,11 @@ export default function EHealthNexusLanding() {
                             <span className="text-gray-700">Get a valid prescription</span>
                         </div>
                     </div>
-
                     {/* CTA Button */}
-                    <button className="bg-red-400 hover:bg-red-500 text-white font-medium py-3 px-8 rounded-md transition duration-300 text-lg w-full md:w-auto">
+                    <button className="bg-red-400 hover:bg-red-500 text-white font-medium py-3 px-8 rounded-md transition duration-300 text-lg w-full md:w-auto shadow">
                         Consult now
                     </button>
                 </div>
-
                 {/* Right Image */}
                 <div className="lg:w-1/2">
                     <div className="relative w-full h-[300px] md:h-[350px]">
@@ -333,7 +319,7 @@ export default function EHealthNexusLanding() {
                             alt="Doctor consultation illustration"
                             width={400}
                             height={350}
-                            className="object-contain"
+                            className="object-contain rounded-lg shadow"
                         />
                     </div>
                 </div>
