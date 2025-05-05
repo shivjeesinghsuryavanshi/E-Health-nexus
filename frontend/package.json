@@ -9,12 +9,15 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@radix-ui/react-slot": "^1.2.0",
     "@tabler/icons-react": "^3.31.0",
     "axios": "^1.8.4",
     "axis": "^1.0.0",
+    "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "formik": "^2.4.6",
     "ldrs": "^1.1.6",
+    "lucide-react": "^0.507.0",
     "motion": "^12.5.0",
     "next": "^15.2.1",
     "ogl": "^1.0.11",
