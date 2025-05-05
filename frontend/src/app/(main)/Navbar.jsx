@@ -12,7 +12,7 @@ const Navbar = () => {
                 href="#"
                 aria-label="Brand"
               >
-                Brand
+                E-HEALTH-NEXUS
               </a>
               {/* Collapse Button */}
               <button
