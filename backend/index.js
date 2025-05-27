@@ -3,6 +3,7 @@ const express = require('express');
 require('dotenv').config();
 const DoctorRouter = require('./routers/DoctorRouter');
 const PatientRouter = require('./routers/Patient')
+const slotRouter = require('./routers/slotRouter')
 const cors = require('cors');
 
 // initialize express
@@ -18,15 +19,16 @@ app.use(cors({
 app.use(express.json());
 app.use('/user', PatientRouter);
 app.use('/doctor', DoctorRouter);
+app.use('/slot', slotRouter);
 
 // endpoints or routes
 app.get('/', (req, res) => {
     res.send('response from express');
-})
+});
 
 app.get('/add', (req, res) => {
     res.send('response from add');
-})
+});
 
 // getall
 // delete

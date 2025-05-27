@@ -2,6 +2,7 @@
 import { Upload, ShoppingCart, ChevronDown, ChevronRight, ChevronLeft } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
+import Button from "@/components/button"
 
 export default function EHealthNexusLanding() {
     return (
@@ -45,17 +46,17 @@ export default function EHealthNexusLanding() {
                             <button className="flex items-center hover:text-teal-200 transition">
                                 <span>HOME</span>
                             </button>
-                            <button className="flex items-center hover:text-teal-200 transition">
+                            <Link href="/contact" className="flex items-center hover:text-teal-200 transition">
                                 <span className="mr-1"></span>
                                 <span>CONTACT US</span>
-                            </button>
-                            <button className="flex items-center hover:text-teal-200 transition">
+                            </Link>
+                            <Link href="/about" className="flex items-center hover:text-teal-200 transition">
                                 <span>ABOUT US</span>
-                            </button>
-                            <button className="flex items-center hover:text-teal-200 transition">
+                            </Link>
+                            <Link href="/(main)/signup" className="flex items-center hover:text-teal-200 transition">
                                 <span className="mr-1">👤</span>
-                                <span>Login / Sign up</span>
-                            </button>
+                                <span>Sign up</span>
+                            </Link>
                         </div>
                     </div>
                 </div>
@@ -157,7 +158,7 @@ export default function EHealthNexusLanding() {
                         <div className="md:w-1/2">
                             <div className="relative">
                                 <img
-                                    src="/placeholder.svg?height=400&width=600"
+                                    src="/rinky-pinky.jpg"
                                     alt="Kapiva Ayurvedic Products"
                                     width={600}
                                     height={400}
@@ -234,6 +235,10 @@ export default function EHealthNexusLanding() {
                     </div>
                 </div>
             </div>
+
+            <Link href="/store">
+                <Button>visit store</Button>
+            </Link>
 
             {/* Doctor Consultation Section */}
             <div className="flex flex-col lg:flex-row items-center justify-between gap-8 bg-white py-12 mt-8 shadow rounded-lg container mx-auto px-4">
@@ -314,7 +319,7 @@ export default function EHealthNexusLanding() {
                 {/* Right Image */}
                 <div className="lg:w-1/2">
                     <div className="relative w-full h-[300px] md:h-[350px]">
-                        <Image
+                        <img
                             src="/placeholder.svg?height=350&width=400"
                             alt="Doctor consultation illustration"
                             width={400}

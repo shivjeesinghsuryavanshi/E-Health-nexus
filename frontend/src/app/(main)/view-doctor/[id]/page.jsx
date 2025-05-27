@@ -1,155 +1,157 @@
-import React from 'react';
+'use client';
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'next/navigation';
+import axios from 'axios';
+import toast from 'react-hot-toast';
 
-const ViewDoctor = () => {
+export default function ViewDoctor() {
+    const { id } = useParams();
+    const [doctorData, setDoctorData] = useState({});
+    const [availableSlots, setAvailableSlots] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetchDoctorData();
+        fetchAvailableSlots();
+    }, [id]);
+
+    const fetchDoctorData = async () => {
+        try {
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/doctor/getbyid/${id}`);
+            setDoctorData(response.data);
+        } catch (error) {
+            console.error('Error fetching doctor data:', error);
+            toast.error('Failed to load doctor information');
+        }
+    };
+
+    const fetchAvailableSlots = async () => {
+        try {
+            // Use the new endpoint to get slots by doctor ID
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/slot/getbydoctor/${id}`);
+            setAvailableSlots(response.data);
+            setLoading(false);
+        } catch (error) {
+            console.error('Error fetching slots:', error);
+            toast.error('Failed to load available slots');
+            setLoading(false);
+        }
+    };
+
+    const handleBookSlot = async (slotId) => {
+        try {
+            const token = localStorage.getItem('user-token');
+            if (!token) {
+                toast.error('Please login to book a slot');
+                return;
+            }
+
+            await axios.put(
+                `${process.env.NEXT_PUBLIC_API_URL}/slot/book/${slotId}`,
+                {},
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            toast.success('Slot booked successfully!');
+            // Refresh available slots
+            fetchAvailableSlots();
+        } catch (error) {
+            console.error('Error booking slot:', error);
+            toast.error(error.response?.data?.message || 'Failed to book slot');
+        }
+    };
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-gray-50 py-10 flex items-center justify-center">
+                <p className="text-lg">Loading...</p>
+            </div>
+        );
+    }
+
     return (
-        <div>
-            <style
-                dangerouslySetInnerHTML={{
-                    __html: `
-                        .work-sans {
-                            font-family: 'Work Sans', sans-serif;
-                        }
-                        #menu-toggle:checked + #menu {
-                            display: block;
-                        }
-                        .hover\\:grow {
-                            transition: all 0.3s;
-                            transform: scale(1);
-                        }
-                        .hover\\:grow:hover {
-                            transform: scale(1.02);
-                        }
-                        .carousel-open:checked + .carousel-item {
-                            position: static;
-                            opacity: 100;
-                        }
-                        .carousel-item {
-                            -webkit-transition: opacity 0.6s ease-out;
-                            transition: opacity 0.6s ease-out;
-                        }
-                        #carousel-1:checked ~ .control-1,
-                        #carousel-2:checked ~ .control-2,
-                        #carousel-3:checked ~ .control-3 {
-                            display: block;
-                        }
-                        .carousel-indicators {
-                            list-style: none;
-                            margin: 0;
-                            padding: 0;
-                            position: absolute;
-                            bottom: 2%;
-                            left: 0;
-                            right: 0;
-                            text-align: center;
-                            z-index: 10;
-                        }
-                        #carousel-1:checked ~ .control-1 ~ .carousel-indicators li:nth-child(1) .carousel-bullet,
-                        #carousel-2:checked ~ .control-2 ~ .carousel-indicators li:nth-child(2) .carousel-bullet,
-                        #carousel-3:checked ~ .control-3 ~ .carousel-indicators li:nth-child(3) .carousel-bullet {
-                            color: #000;
-                        }
-                    `,
-                }}
-            />
-            <nav id="header" className="w-full z-30 top-0 py-1">
-                <div className="w-full container mx-auto flex flex-wrap items-center justify-between mt-0 px-6 py-3">
-                    <label htmlFor="menu-toggle" className="cursor-pointer md:hidden block">
-                        <svg
-                            className="fill-current text-gray-900"
-                            xmlns="http://www.w3.org/2000/svg"
-                            width={20}
-                            height={20}
-                            viewBox="0 0 20 20"
-                        >
-                            <title>menu</title>
-                            <path d="M0 3h20v2H0V3zm0 6h20v2H0V9zm0 6h20v2H0v-2z" />
-                        </svg>
-                    </label>
-                    <input className="hidden" type="checkbox" id="menu-toggle" />
-                    <div className="hidden md:flex md:items-center md:w-auto w-full order-3 md:order-1" id="menu">
-                        <nav>
-                            <ul className="md:flex items-center justify-between text-base text-gray-700 pt-4 md:pt-0">
-                                <li>
-                                    <a
-                                        className="inline-block no-underline hover:text-black hover:underline py-2 px-4"
-                                        href="javascript:void(0)"
-                                    >
-                                        Shop
-                                    </a>
-                                </li>
-                                <li>
-                                    <a
-                                        className="inline-block no-underline hover:text-black hover:underline py-2 px-4"
-                                        href="javascript:void(0)"
-                                    >
-                                        About
-                                    </a>
-                                </li>
-                            </ul>
-                        </nav>
+        <div className="min-h-screen bg-gray-50 py-10">
+            <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-lg p-8">
+                <div className="flex flex-col md:flex-row items-center gap-8">
+                    {/* Doctor Image */}
+                    <div className="flex-shrink-0">
+                        <img
+                            src={doctorData.image || "/default-doctor.jpg"}
+                            alt={doctorData.name || "Doctor"}
+                            width={180}
+                            height={180}
+                            className="rounded-full border-4 border-teal-400"
+                        />
                     </div>
-                    <div className="order-1 md:order-2">
-                        <a
-                            className="flex items-center tracking-wide no-underline hover:no-underline font-bold text-gray-800 text-xl"
-                            href="javascript:void(0)"
-                        >
-                            <svg
-                                className="fill-current text-gray-800 mr-2"
-                                xmlns="http://www.w3.org/2000/svg"
-                                width={24}
-                                height={24}
-                                viewBox="0 0 24 24"
-                            >
-                                <path d="M5,22h14c1.103,0,2-0.897,2-2V9c0-0.553-0.447-1-1-1h-3V7c0-2.757-2.243-5-5-5S7,4.243,7,7v1H4C3.447,8,3,8.447,3,9v11 C3,21.103,3.897,22,5,22z M9,7c0-1.654,1.346-3,3-3s3,1.346,3,3v1H9V7z M5,10h2v2h2v-2h6v2h2v-2h2l0.002,10H5V10z" />
-                            </svg>
-                            NORDICS
-                        </a>
+                    {/* Doctor Info */}
+                    <div>
+                        <h1 className="text-3xl font-bold text-gray-800 mb-2">{doctorData.name || "Doctor Name"}</h1>
+                        <p className="text-lg text-gray-600 mb-1">{doctorData.qualification || "MBBS, MD"}</p>
+                        <p className="text-gray-500 mb-2">{doctorData.speciality || "Specialist"}</p>
+                        <div className="flex items-center gap-2 mb-2">
+                            <span className="text-yellow-400 text-xl">★</span>
+                            <span className="font-medium text-gray-700">4.8</span>
+                            <span className="text-gray-400">(120 reviews)</span>
+                        </div>
+                        <p className="text-gray-700 mb-2">
+                            <span className="font-semibold">Experience:</span> {doctorData.experience || "15+"} years
+                        </p>
+                        <p className="text-gray-700 mb-2">
+                            <span className="font-semibold">Languages:</span> English, Hindi
+                        </p>
+                        <p className="text-gray-700">
+                            <span className="font-semibold">Location:</span> {doctorData.location || "Hospital"}
+                        </p>
                     </div>
                 </div>
-            </nav>
-            <div className="carousel relative container mx-auto" style={{ maxWidth: 1600 }}>
-                <div className="carousel-inner relative overflow-hidden w-full">
-                    {/* Slide 1 */}
-                    <input
-                        className="carousel-open"
-                        type="radio"
-                        id="carousel-1"
-                        name="carousel"
-                        aria-hidden="true"
-                        hidden
-                        defaultChecked={true}
-                    />
-                    <div
-                        className="carousel-item absolute opacity-0"
-                        style={{ height: '50vh' }}
-                    >
-                        <div
-                            className="block h-full w-full mx-auto pt-6 md:pt-0 md:items-center bg-cover bg-right"
-                            style={{
-                                backgroundImage:
-                                    'url("https://images.unsplash.com/photo-1422190441165-ec2956dc9ecc?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1600&q=80")',
-                            }}
-                        >
-                            <div className="container mx-auto">
-                                <div className="flex flex-col w-full lg:w-1/2 md:ml-16 items-center md:items-start px-6 tracking-wide">
-                                    <p className="text-black text-2xl my-4">
-                                        Stripy Zig Zag Jigsaw Pillow and Duvet Set
-                                    </p>
-                                    <a
-                                        className="text-xl inline-block no-underline border-b border-gray-600 leading-relaxed hover:text-black hover:border-black"
-                                        href="javascript:void(0)"
+
+                {/* Available Slots */}
+                <div className="mt-8">
+                    <h2 className="text-xl font-semibold text-teal-600 mb-4">Available Slots</h2>
+                    {availableSlots.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                            {availableSlots.map((slot) => (
+                                <div key={slot._id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                                    <div className="text-sm text-gray-500 mb-1">{slot.date}</div>
+                                    <div className="text-lg font-semibold text-gray-800 mb-3">{slot.time}</div>
+                                    <button
+                                        onClick={() => handleBookSlot(slot._id)}
+                                        className="w-full bg-teal-500 hover:bg-teal-600 text-white font-medium py-2 px-4 rounded transition-colors"
                                     >
-                                        view product
-                                    </a>
+                                        Book Slot
+                                    </button>
                                 </div>
-                            </div>
+                            ))}
                         </div>
-                    </div>
-                    {/* Add other slides similarly */}
+                    ) : (
+                        <div className="bg-gray-100 rounded-lg p-6 text-center mb-6">
+                            <p className="text-gray-600">No available slots at the moment.</p>
+                        </div>
+                    )}
+                </div>
+
+                {/* Doctor Details */}
+                <div className="mt-8">
+                    <h2 className="text-xl font-semibold text-teal-600 mb-2">About</h2>
+                    <p className="text-gray-700 mb-4">
+                        {doctorData.about || "Experienced physician specializing in providing quality healthcare services."}
+                    </p>
+                    <h2 className="text-xl font-semibold text-teal-600 mb-2">Specializations</h2>
+                    <ul className="list-disc list-inside text-gray-700 mb-4">
+                        <li>Diabetes Management</li>
+                        <li>Hypertension</li>
+                        <li>Thyroid Disorders</li>
+                        <li>General Health Checkups</li>
+                        <li>Infectious Diseases</li>
+                    </ul>
+                    <h2 className="text-xl font-semibold text-teal-600 mb-2">Consultation Fee</h2>
+                    <p className="text-gray-700 mb-6">₹{doctorData.fee || "500"} per consultation</p>
                 </div>
             </div>
         </div>
     );
-};
-
-export default ViewDoctor;
+}

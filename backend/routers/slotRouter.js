@@ -1,19 +1,18 @@
 const express = require('express');
-const Model = require('../models/DoctorModel');
-const SlotModel = require('../models/slotModel'); // Import the slot model
+const Model = require('../models/slotModel');
 const jwt = require('jsonwebtoken');
+const verifyToken = require('../middlewares/verifyToken');
 
 const router = express.Router();
 
-router.post('/add', (req, res) => {
+router.post('/add', verifyToken, (req, res) => {
+    req.body.doctor = req.user._id;
     console.log(req.body);
 
     new Model(req.body).save()
         .then((result) => {
             res.status(200).json(result);
         }).catch((err) => {
-            console.log(err);
-
             res.status(500).json(err);
         });
 });
@@ -44,8 +43,6 @@ router.get('/getbyid/:id', (req, res) => {
             res.status(500).json(err);
         });
 });
-
-
 
 router.post('/authenticate', (req, res) => {
     Model.findOne(req.body)
@@ -82,43 +79,42 @@ router.post('/authenticate', (req, res) => {
         });
 });
 
-// Fetch slots by doctor id
-router.get('/slots', async (req, res) => {
-    try {
-        // Get token from Authorization header
-        const authHeader = req.headers["authorization"];
-        const token = authHeader && authHeader.split(" ")[1];
-        if (!token) return res.status(401).json({ message: "No token provided" });
-
-        // Decode token to get doctor id
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const doctorId = decoded._id;
-
-        // Find slots for this doctor
-        const slots = await SlotModel.find({ doctor: doctorId });
-        res.status(200).json(slots);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: "Failed to fetch slots", error: err });
-    }
+// Get slots by doctor ID (only unbooked slots)
+router.get('/getbydoctor/:doctorId', (req, res) => {
+    Model.find({
+        doctor: req.params.doctorId,
+        booked: false
+    })
+        .then((result) => {
+            res.status(200).json(result);
+        })
+        .catch((err) => {
+            console.log(err);
+            res.status(500).json(err);
+        });
 });
 
-// Update doctor by id
-router.put('/update/:id', async (req, res) => {
-    try {
-        const updatedDoctor = await Model.findByIdAndUpdate(
-            req.params.id,
-            req.body,
-            { new: true }
-        );
-        if (!updatedDoctor) {
-            return res.status(404).json({ message: "Doctor not found" });
-        }
-        res.status(200).json(updatedDoctor);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: "Failed to update doctor", error: err });
-    }
+// Update slot to booked status
+router.put('/book/:id', verifyToken, (req, res) => {
+    Model.findByIdAndUpdate(
+        req.params.id,
+        {
+            booked: true,
+            patient: req.user._id,
+            status: 'booked'
+        },
+        { new: true }
+    )
+        .then((result) => {
+            if (!result) {
+                return res.status(404).json({ message: "Slot not found" });
+            }
+            res.status(200).json(result);
+        })
+        .catch((err) => {
+            console.log(err);
+            res.status(500).json(err);
+        });
 });
 
 module.exports = router;
