@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import Link from 'next/link';
 
 export default function ViewDoctor() {
     const { id } = useParams();
@@ -150,6 +151,33 @@ export default function ViewDoctor() {
                     </ul>
                     <h2 className="text-xl font-semibold text-teal-600 mb-2">Consultation Fee</h2>
                     <p className="text-gray-700 mb-6">₹{doctorData.fee || "500"} per consultation</p>
+                </div>
+
+                {/* Action Buttons - Replaced section */}
+                <div className="mt-8 flex flex-wrap justify-center gap-3">
+                    <Link href="/">
+                        <button className="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition">
+                            Home
+                        </button>
+                    </Link>
+                    <Link href="/store">
+                        <button className="bg-teal-600 text-white px-6 py-2 rounded-lg hover:bg-teal-700 transition">
+                            Browse Other Doctors
+                        </button>
+                    </Link>
+                    {typeof window !== "undefined" && localStorage.getItem('user-token') ? (
+                        <Link href="/user/dashboard">
+                            <button className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition">
+                                My Dashboard
+                            </button>
+                        </Link>
+                    ) : (
+                        <Link href="/(main)/login">
+                            <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
+                                Login to Book
+                            </button>
+                        </Link>
+                    )}
                 </div>
             </div>
         </div>
