@@ -1,6 +1,7 @@
 'use client';
 import DoctorCard from '@/components/DoctorCard';
 import axios from 'axios';
+import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 
 // Sample doctor data - In a real application, this would come from an API
@@ -90,7 +91,9 @@ const DoctorDetailPage = () => {
                 {/* Doctor Cards Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {doctorList.map((doctor) => (
-                        <DoctorCard key={doctor._id} doctor={doctor} />
+                        <Link key={doctor._id} href={`/view-doctor/${doctor._id}`}>
+                            <DoctorCard doctor={doctor} />
+                        </Link>
                     ))}
                 </div>
             </div>

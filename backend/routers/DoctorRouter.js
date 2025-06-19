@@ -106,17 +106,24 @@ router.get('/slots', async (req, res) => {
 // Update doctor by id
 router.put('/update/:id', async (req, res) => {
     try {
+        console.log('Updating doctor profile:', req.params.id);
+        console.log('Update data received:', req.body);
+        
         const updatedDoctor = await Model.findByIdAndUpdate(
             req.params.id,
             req.body,
             { new: true }
         );
+        
         if (!updatedDoctor) {
+            console.log('Doctor not found with ID:', req.params.id);
             return res.status(404).json({ message: "Doctor not found" });
         }
+        
+        console.log('Doctor updated successfully:', updatedDoctor);
         res.status(200).json(updatedDoctor);
     } catch (err) {
-        console.error(err);
+        console.error('Error updating doctor:', err);
         res.status(500).json({ message: "Failed to update doctor", error: err });
     }
 });

@@ -18,6 +18,9 @@ export default function DoctorProfilePage() {
         oldPassword: "",
         newPassword: "",
         image: "",
+        googlemeetLink: "", // Initialize Google Meet link field
+        experience: "", // Initialize experience field
+        gender: "", // Initialize gender field
     });
     const [imagePreview, setImagePreview] = useState("");
     const [status, setStatus] = useState("");
@@ -48,6 +51,7 @@ export default function DoctorProfilePage() {
                     email: res.data.email || "",
                     bio: res.data.about || "",
                     image: res.data.image || "",
+                    googlemeetLink: res.data.googlemeetLink || "",
                     // Add more mappings if needed
                 }));
                 setImagePreview(res.data.image || "");
@@ -86,9 +90,7 @@ export default function DoctorProfilePage() {
         } catch (err) {
             setStatus("Image upload failed.");
         }
-    };
-
-    // Profile update
+    };    // Profile update
     const handleProfileUpdate = async (e) => {
         e.preventDefault();
         setStatus("Updating profile...");
@@ -104,6 +106,7 @@ export default function DoctorProfilePage() {
                     email: profile.email,
                     about: profile.bio,
                     image: profile.image,
+                    googlemeetLink: profile.googlemeetLink, // Add Google Meet link
                     // Add other fields as needed
                 },
                 {
@@ -111,10 +114,23 @@ export default function DoctorProfilePage() {
                         Authorization: `Bearer ${token}`,
                     },
                 }
+            );            const result = await axios.get(
+                `http://localhost:5000/doctor/getbyid/${doctorId}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
             );
+            console.log("Updated profile received:", result.data);
             setStatus("Profile updated successfully!");
         } catch (err) {
-            setStatus("Profile update failed.");
+            setStatus(`Profile update failed: ${err.message}`);
+            console.error("Update error:", err);
+            if (err.response) {
+                console.error("Response data:", err.response.data);
+                console.error("Response status:", err.response.status);
+            }
         }
     };
 
@@ -314,6 +330,16 @@ export default function DoctorProfilePage() {
                                                 type="text"
                                                 name="whatsapp"
                                                 value={profile.whatsapp}
+                                                onChange={handleChange}
+                                                className="w-full border rounded px-3 py-2"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium mb-1">Google meet</label>
+                                            <input
+                                                type="text"
+                                                name="googlemeetLink"
+                                                value={profile.googlemeetLink}
                                                 onChange={handleChange}
                                                 className="w-full border rounded px-3 py-2"
                                             />

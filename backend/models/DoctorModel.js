@@ -17,6 +17,7 @@ const mySchema = new Schema({
     designation: { type: String, default: "unknown" },
     about: { type: String, default: "" },
     image: { type: String, default: "" },
+    googlemeetLink: { type: String, default: "" },
     createdAt: { type: Date, default: Date.now }
 })
 
