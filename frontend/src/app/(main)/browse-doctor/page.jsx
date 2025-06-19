@@ -4,42 +4,42 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 
 // Sample doctor data - In a real application, this would come from an API
-const doctors = [
-    {
-        id: 1,
-        name: 'Dr. Shiv Jee Singh',
-        specialization: 'Cardiologist',
-        location: 'Lucknow, India',
-        image: '/doctors/dr-shiv.jpg',
-        availableSlots: [
-            '10:00 AM - 12:00 PM, Mon-Fri',
-            '2:00 PM - 4:00 PM, Sat-Sun'
-        ]
-    },
-    {
-        id: 2,
-        name: 'Dr. Priya Sharma',
-        specialization: 'Pediatrician',
-        location: 'Delhi, India',
-        image: '/doctors/dr-priya.jpg',
-        availableSlots: [
-            '9:00 AM - 1:00 PM, Mon-Wed-Fri',
-            '3:00 PM - 6:00 PM, Tue-Thu'
-        ]
-    },
-    {
-        id: 3,
-        name: 'Dr. Rajesh Kumar',
-        specialization: 'Neurologist',
-        location: 'Mumbai, India',
-        image: '/doctors/dr-rajesh.jpg',
-        availableSlots: [
-            '11:00 AM - 2:00 PM, Mon-Fri',
-            '4:00 PM - 7:00 PM, Sat'
-        ]
-    },
-    // Add more doctors as needed
-];
+// const doctors = [
+//     {
+//         id: 1,
+//         name: 'Dr. Shiv Jee Singh',
+//         specialization: 'Cardiologist',
+//         location: 'Lucknow, India',
+//         image: '/doctors/dr-shiv.jpg',
+//         availableSlots: [
+//             '10:00 AM - 12:00 PM, Mon-Fri',
+//             '2:00 PM - 4:00 PM, Sat-Sun'
+//         ]
+//     },
+//     {
+//         id: 2,
+//         name: 'Dr. Priya Sharma',
+//         specialization: 'Pediatrician',
+//         location: 'Delhi, India',
+//         image: '/doctors/dr-priya.jpg',
+//         availableSlots: [
+//             '9:00 AM - 1:00 PM, Mon-Wed-Fri',
+//             '3:00 PM - 6:00 PM, Tue-Thu'
+//         ]
+//     },
+//     {
+//         id: 3,
+//         name: 'Dr. Rajesh Kumar',
+//         specialization: 'Neurologist',
+//         location: 'Mumbai, India',
+//         image: '/doctors/dr-rajesh.jpg',
+//         availableSlots: [
+//             '11:00 AM - 2:00 PM, Mon-Fri',
+//             '4:00 PM - 7:00 PM, Sat'
+//         ]
+//     },
+//     // Add more doctors as needed
+// ];
 
 const DoctorDetailPage = () => {
 

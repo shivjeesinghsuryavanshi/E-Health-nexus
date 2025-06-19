@@ -36,32 +36,37 @@ const DoctorDashboard = () => {
                 );
                 setDoctorData(doctorRes.data);
 
-                // Fetch appointments (mock data for now)
-                setAppointments([
-                    {
-                        id: 1,
-                        patientName: "John Smith",
-                        time: "10:00 AM",
-                        date: "2025-06-05",
-                        status: "confirmed",
-                        type: "checkup"
-                    },
-                    {
-                        id: 2,
-                        patientName: "Sarah Johnson",
-                        time: "2:30 PM",
-                        date: "2025-06-05",
-                        status: "pending",
-                        type: "consultation"
-                    }
-                ]);
+                // Fetch real appointments for the logged-in doctor
+                const appointmentsRes = await axios.get(
+                    `http://localhost:5000/slot/doctor-appointments`,
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
 
-                // Set stats (mock data)
+                const allAppointments = appointmentsRes.data; // These are all appointments for the doctor
+
+                // Filter for today's appointments
+                const today = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
+
+                const todaysAppointments = allAppointments.filter(app => {
+                    // Assuming app.date from backend is in 'YYYY-MM-DD' format for this comparison
+                    return app.date === today;
+                }).map(app => ({
+                    id: app._id,
+                    patientName: app.patient ? app.patient.name : 'N/A',
+                    time: app.time, // Assuming this is in a displayable format like "10:00 AM"
+                    date: app.date, // This will be today's date in YYYY-MM-DD
+                    status: app.status,
+                    // 'type' (e.g., "checkup") is not in slotModel, so it's omitted.
+                }));
+
+                setAppointments(todaysAppointments);
+
+                // Set stats: real for appointment counts, mock for others (matching original structure)
                 setStats({
-                    totalAppointments: 156,
-                    todayAppointments: 8,
-                    totalPatients: 342,
-                    monthlyEarnings: 15750,
+                    totalAppointments: allAppointments.length, // Total appointments for this doctor
+                    todayAppointments: todaysAppointments.length, // Appointments for today
+                    totalPatients: 342, // Kept from original mock data
+                    monthlyEarnings: 15750, // Kept from original mock data
                 });
 
             } catch (error) {
