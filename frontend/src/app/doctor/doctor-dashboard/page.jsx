@@ -262,7 +262,7 @@ const DoctorDashboard = () => {
                         <div className="bg-white rounded-2xl shadow-lg p-6">
                             <div className="flex justify-between items-center mb-6">
                                 <h2 className="text-xl font-bold text-gray-900">Today's Appointments</h2>
-                                <Link href="/doctor/manage-appoinment" className="text-blue-600 hover:text-blue-700 font-semibold text-sm">
+                                <Link href="/doctor/appointments" className="text-blue-600 hover:text-blue-700 font-semibold text-sm">
                                     View All
                                 </Link>
                             </div>

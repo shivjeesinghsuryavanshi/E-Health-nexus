@@ -21,7 +21,7 @@ const mySchema = new Schema({
         prescribedBy: { type: Types.ObjectId, ref: 'doctors' },
         followUpDate: { type: Date }
     },
-    status: { type: String, default: 'pending' }, // pending, completed, cancelled
+    status: { type: String, default: 'available', enum: ['available', 'pending', 'completed', 'cancelled'] },
     report: { type: String, default: null },
     createdAt: { type: Date, default: Date.now }
 });

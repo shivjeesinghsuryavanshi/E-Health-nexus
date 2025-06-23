@@ -88,8 +88,8 @@ const Signup = () => {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-teal-50 to-green-50 flex items-center justify-center p-4">
-            <div className="mt-7 max-w-lg mx-auto bg-white border border-gray-200 rounded-xl shadow-2xl dark:bg-neutral-900 dark:border-neutral-700">
-                <div className="p-4 sm:p-7">
+            <div className="mt-7 max-w-4xl mx-auto bg-white border border-gray-200 rounded-xl shadow-2xl dark:bg-neutral-900 dark:border-neutral-700">
+                <div className="p-6 sm:p-10">
                     <div className="text-center">
                         <div className="mx-auto w-16 h-16 bg-gradient-to-br from-blue-600 to-teal-600 rounded-full flex items-center justify-center mb-4">
                             <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -138,7 +138,7 @@ const Signup = () => {
                                 </div>
                             </div>
 
-                            <div className="grid gap-y-4">
+                            <div className="grid gap-y-4 md:grid-cols-2 md:gap-x-6">
                                 {/* Form Group */}
                                 <div>
                                     <label htmlFor="name" className="block text-sm font-medium mb-2 dark:text-white">Full Name</label>

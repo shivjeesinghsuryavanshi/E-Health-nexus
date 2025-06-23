@@ -42,21 +42,37 @@ const SlotManagement = () => {
         // Fetch slots
         const fetchSlots = async () => {
             try {
-                // Fixed: Use correct endpoint URL
                 const response = await axios.get('http://localhost:5000/slot/doctor-slots', {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
                 });
-                setSlots(response.data);
+                // Update the slots data structure
+                const slotsWithPatients = await Promise.all(
+                    response.data.map(async (slot) => {
+                        if (slot.booked && slot.patient) {
+                            try {
+                                const patientRes = await axios.get(`http://localhost:5000/patient/getbyid/${slot.patient}`, {
+                                    headers: { Authorization: `Bearer ${token}` },
+                                });
+                                return { ...slot, patient: patientRes.data };
+                            } catch (error) {
+                                console.error('Error fetching patient data:', error);
+                                return slot;
+                            }
+                        }
+                        return slot;
+                    })
+                );
+                setSlots(slotsWithPatients);
             } catch (error) {
                 console.error('Error fetching slots:', error);
-                // Mock data for demo
-                setSlots([
-                    { _id: '1', date: '2025-06-06', time: '9:00 AM - 11:00 AM', status: 'available' },
-                    { _id: '2', date: '2025-06-06', time: '2:00 PM - 4:00 PM', status: 'booked' },
-                    { _id: '3', date: '2025-06-07', time: '10:00 AM - 12:00 PM', status: 'available' },
-                ]);
+                if (error.response?.status === 403) {
+                    toast.error('Session expired. Please login again');
+                    router.push('/doctor-login');
+                } else {
+                    toast.error('Failed to load slots');
+                }
             } finally {
                 setLoading(false);
             }
@@ -96,25 +112,31 @@ const SlotManagement = () => {
         }
     };
 
+    // Update your deleteSlot function
     const deleteSlot = async (slotId) => {
-        if (!confirm('Are you sure you want to delete this slot?')) return;
-
         try {
-            // Fixed: Use correct endpoint URL
-            await axios.delete(`http://localhost:5000/slot/delete/${slotId}`, {
+            // Check if the slot is booked before deletion
+            const slotToDelete = slots.find(slot => slot._id === slotId);
+            if (slotToDelete && slotToDelete.status !== 'available') {
+                toast.error("Cannot delete a booked slot");
+                return;
+            }
+
+            const response = await axios.delete(`http://localhost:5000/slot/${slotId}`, {
                 headers: {
-                    Authorization: `Bearer ${token}`,
-                },
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}` // Using the doctor's token
+                }
             });
-            setSlots(slots.filter((slot) => slot._id !== slotId));
-            toast.success('Slot deleted successfully!');
+
+            if (response.status === 200) {
+                // Remove the deleted slot from the state
+                setSlots(slots.filter(slot => slot._id !== slotId));
+                toast.success('Slot deleted successfully');
+            }
         } catch (error) {
             console.error('Error deleting slot:', error);
-            if (error.response?.status === 400) {
-                toast.error('Cannot delete booked slot');
-            } else {
-                toast.error('Failed to delete slot');
-            }
+            toast.error("Failed to delete slot");
         }
     };
 
@@ -249,10 +271,10 @@ const SlotManagement = () => {
                                     key={slot._id}
                                     className="bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
                                 >
-                                    <div className="flex justify-between items-start mb-4">
-                                        <div className="flex-1">
-                                            <div className="flex items-center mb-2">
-                                                <svg className="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <div className="flex justify-between items-start">
+                                        <div className="space-y-4">
+                                            <div className="flex items-center gap-2">
+                                                <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4h3a2 2 0 012 2v1l-2 2-2-2H7l-2 2-2-2V9a2 2 0 012-2h3z" />
                                                 </svg>
                                                 <span className="text-sm font-medium text-gray-600">
@@ -264,7 +286,8 @@ const SlotManagement = () => {
                                                     })}
                                                 </span>
                                             </div>
-                                            <div className="flex items-center mb-3">
+
+                                            <div className="flex items-center">
                                                 <svg className="w-5 h-5 text-teal-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                 </svg>
@@ -272,24 +295,73 @@ const SlotManagement = () => {
                                                     {slot.time}
                                                 </span>
                                             </div>
-                                            <div className="flex items-center">
+
+                                            <div className="flex flex-wrap gap-2">
                                                 <span className={`px-3 py-1 rounded-full text-xs font-semibold ${slot.status === 'available'
                                                         ? 'bg-green-100 text-green-800'
-                                                        : 'bg-orange-100 text-orange-800'
+                                                        : slot.status === 'booked'
+                                                            ? 'bg-blue-100 text-blue-800'
+                                                            : slot.status === 'completed'
+                                                                ? 'bg-gray-100 text-gray-800'
+                                                                : 'bg-orange-100 text-orange-800'
                                                     }`}>
-                                                    {slot.status || 'Available'}
+                                                    {slot.status === 'available' ? 'Available' :
+                                                        slot.status === 'booked' ? 'Booked' :
+                                                            slot.status === 'completed' ? 'Completed' :
+                                                                slot.status || 'Pending'}
                                                 </span>
+
+                                                {slot.consultationType && (
+                                                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${slot.consultationType === 'video'
+                                                            ? 'bg-purple-100 text-purple-800'
+                                                            : 'bg-indigo-100 text-indigo-800'
+                                                        }`}>
+                                                        {slot.consultationType === 'video' ? 'Video Call' : 'In-Person'}
+                                                    </span>
+                                                )}
                                             </div>
+
+                                            {slot.booked && slot.patient && (
+                                                <div className="mt-2 space-y-2 bg-gray-50 p-3 rounded-lg">
+                                                    <div className="flex items-center text-sm text-gray-600">
+                                                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                                        </svg>
+                                                        <span className="font-medium">
+                                                            {typeof slot.patient === 'object' ? slot.patient.name : 'Patient'}
+                                                        </span>
+                                                    </div>
+                                                    {slot.patient.contact && (
+                                                        <div className="flex items-center text-sm text-gray-600">
+                                                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 002-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                                                            </svg>
+                                                            <span>{slot.patient.contact}</span>
+                                                        </div>
+                                                    )}
+                                                    {slot.patient.email && (
+                                                        <div className="flex items-center text-sm text-gray-600">
+                                                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                                            </svg>
+                                                            <span>{slot.patient.email}</span>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
                                         </div>
-                                        <button
-                                            onClick={() => deleteSlot(slot._id)}
-                                            className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all duration-200"
-                                            title="Delete slot"
-                                        >
-                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                            </svg>
-                                        </button>
+
+                                        {!slot.booked && (
+                                            <button
+                                                onClick={() => deleteSlot(slot._id)}
+                                                className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all duration-200"
+                                                title="Delete slot"
+                                            >
+                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                             ))}
@@ -313,7 +385,7 @@ const SlotManagement = () => {
                                 </div>
                             </Link>
 
-                            <Link href="/doctor/manage-appoinment" className="group">
+                            <Link href="/doctor/appointments" className="group">
                                 <div className="p-4 rounded-xl bg-teal-50 hover:bg-teal-100 transition-all duration-200 text-center cursor-pointer">
                                     <div className="w-12 h-12 bg-teal-600 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-200">
                                         <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">

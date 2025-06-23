@@ -54,43 +54,14 @@ export default function ManageAppointments() {
     const PrescriptionIcon = () => (
         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-        </svg>);
-
-    // Add token validation effect
-    useEffect(() => {
-        const validateToken = () => {
-            const token = localStorage.getItem('doctor-token');
-            if (!token) {
-                router.push('/doctor-login');
-            }
-        };
-
-        validateToken();
-        window.addEventListener('storage', validateToken);
-
-        return () => {
-            window.removeEventListener('storage', validateToken);
-        };
-    }, [router]);
+        </svg>    );
 
     useEffect(() => {
         const fetchAppointments = async () => {
             try {
                 setLoading(true);
-                const token = localStorage.getItem('doctor-token');
-
-                if (!token) {
-                    toast.error('Please login to access appointments');
-                    router.push('/doctor-login');
-                    return;
-                }
-
-                const response = await axios.get('http://localhost:5000/slot/doctor-booked-slots', {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                });
-
+                const response = await axios.get('http://localhost:5000/slot/doctor-booked-slots');
+                
                 if (Array.isArray(response.data)) {
                     setAppointments(response.data);
                 } else {
@@ -99,36 +70,17 @@ export default function ManageAppointments() {
                 }
             } catch (error) {
                 console.error('Error fetching appointments:', error);
-                if (error.response?.status === 401) {
-                    toast.error('Session expired. Please login again');
-                    router.push('/doctor-login');
-                } else {
-                    toast.error('Failed to fetch appointments');
-                }
+                toast.error('Failed to fetch appointments');
                 setAppointments([]);
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchAppointments();
-    }, [router]);
-    const handleStatusChange = async (appointmentId, newStatus) => {
+        fetchAppointments();    }, []);const handleStatusChange = async (appointmentId, newStatus) => {
         try {
-            const token = localStorage.getItem('doctor-token');
-            if (!token) {
-                toast.error('Please login to update appointment status');
-                router.push('/doctor-login');
-                return;
-            }
-
             await axios.put(`http://localhost:5000/slot/update-status/${appointmentId}`,
-                { status: newStatus },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
+                { status: newStatus }
             );
 
             // Update the local state

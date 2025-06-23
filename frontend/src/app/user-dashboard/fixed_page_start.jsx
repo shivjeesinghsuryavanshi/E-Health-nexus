@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import DoctorCard from '@/components/DoctorCard';
 import toast from 'react-hot-toast';
 
 export default function UserDashboard() {
@@ -106,7 +107,8 @@ export default function UserDashboard() {
             }
         } catch (error) {
             console.error('Error fetching appointments:', error);
-            toast.error(`Failed to load appointments: ${error.message || 'Network error'}`); setAppointments([]);
+            toast.error(`Failed to load appointments: ${error.message || 'Network error'}`);
+            setAppointments([]);
         }
     };
 
@@ -195,17 +197,8 @@ export default function UserDashboard() {
             // Check for specific network-related errors
             if (error.name === 'AbortError') {
                 toast.error('Request timed out. Server may be down or unreachable.');
-            } else if (error.message && (error.message.includes('Failed to fetch') || error.message.includes('NetworkError'))) {
-                toast.error(
-                    <div>
-                        <p>Network error. Please check:</p>
-                        <ul className="mt-2 list-disc pl-5 text-sm">
-                            <li>Backend server is running</li>
-                            <li>CORS is properly configured</li>
-                            <li>No firewall or network issues</li>
-                        </ul>
-                    </div>
-                );
+            } else if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+                toast.error('Network error. Check if the backend server is running.');
             } else {
                 toast.error(`Failed to load doctors: ${error.message || 'Unknown error'}`);
             }
@@ -213,14 +206,54 @@ export default function UserDashboard() {
             // Provide empty array as fallback
             setDoctors([]);
         }
-    };
+    }; const openBookingModal = async (doctor) => {
+        setSelectedDoctor(doctor);
+        setIsBookingModalOpen(true);
 
-    const openBookingModal = async (doctor) => {
-        // Navigate to the view-doctor page instead of opening a modal
-        router.push(`/view-doctor/${doctor._id}`);
+        try {
+            // Fetch available slots for the selected doctor
+            const response = await fetchWithTimeout(`http://localhost:5000/slot/available/${doctor._id}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            });
+
+            // Log the full response for debugging
+            const contentType = response.headers.get('content-type');
+            console.log('Response content type:', contentType);
+
+            if (!response.ok) {
+                const text = await response.text();
+                console.error('Error response:', text);
+                throw new Error(`Failed to load slots: ${response.status}`);
+            }
+
+            // Check if response is JSON
+            if (!contentType || !contentType.includes('application/json')) {
+                console.error('Invalid content type:', contentType);
+                throw new Error('Server did not return JSON');
+            }
+
+            const data = await response.json();
+            console.log('Received slots:', data);
+
+            if (!Array.isArray(data)) {
+                console.error('Invalid data format:', data);
+                throw new Error('Invalid data format received');
+            }
+
+            setAvailableSlots(data);
+        } catch (error) {
+            console.error('Error fetching available slots:', error);
+            toast.error(`Failed to load available slots: ${error.message}`);
+            setAvailableSlots([]);
+        }
     };
 
     const closeBookingModal = () => {
+        setIsBookingModalOpen(false);
         setSelectedDoctor(null);
         setSelectedSlot(null);
         setConsultationType('in-person');
@@ -242,10 +275,11 @@ export default function UserDashboard() {
                 return;
             }
 
-            const response = await fetch(`http://localhost:5000/slot/book/${selectedSlot._id}`, {
+            const response = await fetchWithTimeout(`http://localhost:5000/slot/book/${selectedSlot._id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
+                    ...(user.token && { 'Authorization': `Bearer ${user.token}` })
                 },
                 body: JSON.stringify({
                     patientId: user._id,
@@ -276,8 +310,13 @@ export default function UserDashboard() {
         }
 
         try {
-            const response = await fetch(`http://localhost:5000/slot/cancel/${appointmentId}`, {
-                method: 'PUT'
+            const user = JSON.parse(localStorage.getItem('user'));
+            const response = await fetchWithTimeout(`http://localhost:5000/slot/cancel/${appointmentId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(user && user.token ? { 'Authorization': `Bearer ${user.token}` } : {})
+                }
             });
 
             const data = await response.json();
@@ -333,14 +372,26 @@ export default function UserDashboard() {
             toast.info("Testing API connection...");
 
             // Test the base endpoint
-            const baseResponse = await fetch('http://localhost:5000/');
-            const baseText = await baseResponse.text();
-            console.log('Base endpoint response:', baseText);
+            try {
+                const baseResponse = await fetchWithTimeout('http://localhost:5000/', {}, 5000);
+                const baseText = await baseResponse.text();
+                console.log('Base endpoint response:', baseText);
+                toast.success('Successfully connected to server base endpoint');
+            } catch (baseError) {
+                console.error('Base endpoint error:', baseError);
+                toast.error(`Base endpoint error: ${baseError.message}`);
+            }
 
             // Test the ping endpoint
-            const pingResponse = await fetch('http://localhost:5000/slot/ping');
-            const pingText = await pingResponse.text();
-            console.log('Ping response:', pingText);
+            try {
+                const pingResponse = await fetchWithTimeout('http://localhost:5000/slot/ping', {}, 5000);
+                const pingText = await pingResponse.text();
+                console.log('Ping response:', pingText);
+                toast.success('Successfully connected to ping endpoint');
+            } catch (pingError) {
+                console.error('Ping endpoint error:', pingError);
+                toast.error(`Ping endpoint error: ${pingError.message}`);
+            }
 
             // Check auth status
             const authStatus = isAuthenticated ? 'Authenticated' : 'Not authenticated';
@@ -359,17 +410,20 @@ export default function UserDashboard() {
 
     // Helper function to retry failed fetch requests
     const fetchWithRetry = async (url, options = {}, retries = 2) => {
-        try {
-            const response = await fetch(url, options);
-            return response;
-        } catch (err) {
-            if (retries <= 0) throw err;
-
-            // Wait for 1 second before retrying
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            console.log(`Retrying fetch to ${url}, ${retries} retries left...`);
-            return fetchWithRetry(url, options, retries - 1);
+        let lastError;
+        for (let i = 0; i <= retries; i++) {
+            try {
+                const response = await fetch(url, options);
+                return response;
+            } catch (err) {
+                lastError = err;
+                if (i < retries) {
+                    // Wait for 1 second before retrying
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+            }
         }
+        throw lastError; // If all retries failed, throw the last error
     };
 
     return (
@@ -619,7 +673,8 @@ export default function UserDashboard() {
                                         <svg className="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                         </svg>
-                                        <p className="mt-4 text-lg text-gray-600">No appointments found</p>                                        <button
+                                        <p className="mt-4 text-lg text-gray-600">No appointments found</p>
+                                        <button
                                             onClick={() => setActiveTab('doctors')}
                                             className="px-4 py-2 mt-4 text-sm font-medium text-white bg-teal-600 rounded-lg hover:bg-teal-700"
                                         >
@@ -743,7 +798,10 @@ export default function UserDashboard() {
             {/* Booking Modal */}
             {isBookingModalOpen && selectedDoctor && (
                 <div className="fixed inset-0 z-50 overflow-y-auto">
-                    <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">                        {/* Removed overlay to prevent blur effect */}
+                    <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                        <div className="fixed inset-0 transition-opacity" aria-hidden="true">
+                            <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
+                        </div>
                         <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
                         <div className="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
                             <div>
