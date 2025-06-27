@@ -1,15 +1,15 @@
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import { Toaster } from "react-hot-toast";
-import "./globals.css";  
+import "./globals.css";
 import PrelineScript from "@/components/PrelineScript";
 
-const geistSans = Geist({
-    variable: "--font-geist-sans",
+const inter = Inter({
+    variable: "--font-inter",
     subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-    variable: "--font-geist-mono",
+const jetbrainsMono = JetBrains_Mono({
+    variable: "--font-jetbrains-mono",
     subsets: ["latin"],
 });
 
@@ -21,13 +21,23 @@ export const metadata = {
 export default function RootLayout({ children }) {
     return (
         <html lang="en">
+            <head>
+                <link
+                    rel="stylesheet"
+                    href="https://preline.co/assets/css/main.min.css"
+                />
+            </head>
             <body
-                className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-            <PrelineScript />
-            <Toaster />
-            {children}
-        </body>
-    </html >
-  );
+                className={`${inter.variable} ${jetbrainsMono.variable} antialiased`}
+            >
+                <PrelineScript />
+                <Toaster />
+                {children}
+                <script
+                    src="https://preline.co/assets/js/hs-ui.bundle.js"
+                    async
+                ></script>
+            </body>
+        </html >
+    );
 }
