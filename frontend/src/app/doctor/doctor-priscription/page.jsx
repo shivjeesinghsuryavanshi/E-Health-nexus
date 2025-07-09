@@ -1,7 +1,7 @@
 'use client';
 import React, { useState } from 'react';
-import api from '../utils/api';
-import { toast } from 'react-hot-toast';
+import { api } from '@/utils/api';
+import toast from 'react-hot-toast';
 
 const DoctorPrescription = ({ slotId, appointment, onClose, onSuccess }) => {
     const [formData, setFormData] = useState({
@@ -20,7 +20,7 @@ const DoctorPrescription = ({ slotId, appointment, onClose, onSuccess }) => {
     };
 
     const updateMedicine = (index, field, value) => {
-        const updatedMedicines = formData.medicines.map((med, i) => 
+        const updatedMedicines = formData.medicines.map((med, i) =>
             i === index ? { ...med, [field]: value } : med
         );
         setFormData({ ...formData, medicines: updatedMedicines });
@@ -35,7 +35,7 @@ const DoctorPrescription = ({ slotId, appointment, onClose, onSuccess }) => {
 
     const savePrescription = async () => {
         // Validate required fields
-        const validMedicines = formData.medicines.filter(med => 
+        const validMedicines = formData.medicines.filter(med =>
             med.name.trim() && med.dosage.trim() && med.frequency.trim() && med.duration.trim()
         );
 
@@ -58,10 +58,10 @@ const DoctorPrescription = ({ slotId, appointment, onClose, onSuccess }) => {
                 followUpDate: formData.followUpDate || null
             };
 
-            await api.put(`/slot/add-prescription/${slotId}`, payload);
-            toast.success('Prescription added successfully!');
-            onSuccess();
-            onClose();
+            const response = await api.put(`/slot/update-prescription/${slotId}`, payload);
+            toast.success('Prescription saved successfully!');
+            onSuccess && onSuccess();
+            onClose && onClose();
         } catch (error) {
             console.error('Error saving prescription:', error);
             toast.error('Failed to save prescription');
@@ -72,13 +72,14 @@ const DoctorPrescription = ({ slotId, appointment, onClose, onSuccess }) => {
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg max-w-4xl w-full max-h-screen overflow-y-auto">
+            <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
                 {/* Header */}
-                <div className="flex items-center justify-between p-6 border-b">
-                    <h2 className="text-2xl font-bold text-gray-900">Add Prescription</h2>
+                <div className="flex justify-between items-center p-6 border-b">
+                    <h2 className="text-2xl font-bold text-gray-900">Write Prescription</h2>
                     <button
                         onClick={onClose}
-                        className="text-gray-400 hover:text-gray-600"
+                        className="p-2 hover:bg-gray-100 rounded-full"
+                        disabled={loading}
                     >
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -92,11 +93,11 @@ const DoctorPrescription = ({ slotId, appointment, onClose, onSuccess }) => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <p className="text-sm text-gray-600">Patient Name</p>
-                            <p className="font-medium">{appointment.patientName}</p>
+                            <p className="font-medium">{appointment?.patientName || 'N/A'}</p>
                         </div>
                         <div>
                             <p className="text-sm text-gray-600">Appointment Date</p>
-                            <p className="font-medium">{new Date(appointment.date).toLocaleDateString()} at {appointment.time}</p>
+                            <p className="font-medium">{appointment?.date ? new Date(appointment.date).toLocaleDateString() : 'N/A'} at {appointment?.time || 'N/A'}</p>
                         </div>
                     </div>
                 </div>
@@ -111,26 +112,28 @@ const DoctorPrescription = ({ slotId, appointment, onClose, onSuccess }) => {
                         <textarea
                             value={formData.diagnosis}
                             onChange={(e) => setFormData({ ...formData, diagnosis: e.target.value })}
-                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                            rows="3"
-                            placeholder="Enter patient diagnosis..."
+                            placeholder="Enter diagnosis..."
+                            className="w-full p-3 border border-gray-300 rounded focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                            rows={3}
                             required
                         />
                     </div>
 
                     {/* Medicines */}
                     <div>
-                        <div className="flex items-center justify-between mb-3">
+                        <div className="flex justify-between items-center mb-3">
                             <label className="block text-sm font-medium text-gray-700">
-                                Prescribed Medicines <span className="text-red-500">*</span>
+                                Medicines <span className="text-red-500">*</span>
                             </label>
                             <button
                                 onClick={addMedicine}
-                                className="bg-teal-600 text-white px-3 py-1 rounded text-sm hover:bg-teal-700 transition-colors"
+                                className="px-4 py-2 bg-teal-600 text-white rounded hover:bg-teal-700 transition-colors"
+                                disabled={loading}
                             >
-                                + Add Medicine
+                                Add Medicine
                             </button>
                         </div>
+
                         <div className="space-y-4">
                             {formData.medicines.map((medicine, index) => (
                                 <div key={index} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
@@ -151,19 +154,16 @@ const DoctorPrescription = ({ slotId, appointment, onClose, onSuccess }) => {
                                             className="p-2 border border-gray-300 rounded focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                                             required
                                         />
-                                        <select
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                                        <input
+                                            type="text"
+                                            placeholder="Frequency (e.g., 3 times daily) *"
                                             value={medicine.frequency}
                                             onChange={(e) => updateMedicine(index, 'frequency', e.target.value)}
                                             className="p-2 border border-gray-300 rounded focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                                             required
-                                        >
-                                            <option value="">Select frequency *</option>
-                                            <option value="Once daily">Once daily</option>
-                                            <option value="Twice daily">Twice daily</option>
-                                            <option value="Three times daily">Three times daily</option>
-                                            <option value="Four times daily">Four times daily</option>
-                                            <option value="As needed">As needed</option>
-                                        </select>
+                                        />
                                         <input
                                             type="text"
                                             placeholder="Duration (e.g., 7 days) *"
@@ -204,27 +204,26 @@ const DoctorPrescription = ({ slotId, appointment, onClose, onSuccess }) => {
                         <textarea
                             value={formData.doctorNotes}
                             onChange={(e) => setFormData({ ...formData, doctorNotes: e.target.value })}
-                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                            rows="3"
-                            placeholder="Any additional instructions or notes for the patient..."
+                            placeholder="Additional notes for the patient..."
+                            className="w-full p-3 border border-gray-300 rounded focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                            rows={3}
                         />
                     </div>
 
                     {/* Follow-up Date */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Follow-up Date (Optional)</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Follow-up Date</label>
                         <input
                             type="date"
                             value={formData.followUpDate}
                             onChange={(e) => setFormData({ ...formData, followUpDate: e.target.value })}
-                            className="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                            min={new Date().toISOString().split('T')[0]}
+                            className="p-2 border border-gray-300 rounded focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                         />
                     </div>
                 </div>
 
                 {/* Footer */}
-                <div className="flex justify-end space-x-3 p-6 border-t bg-gray-50">
+                <div className="flex justify-end space-x-4 p-6 bg-gray-50 border-t">
                     <button
                         onClick={onClose}
                         className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"

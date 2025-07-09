@@ -25,7 +25,7 @@ api.interceptors.request.use(
   }
 );
 
-// Add response interceptor for error handling
+// Add response interceptor to handle errors globally
 api.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -40,54 +40,51 @@ api.interceptors.response.use(
 
 // Auth API functions
 export const authAPI = {
-  login: (credentials) => api.post('/auth/login', credentials),
-  register: (userData) => api.post('/auth/register', userData),
-  logout: () => {
-    localStorage.removeItem('token');
-    return Promise.resolve();
-  },
-  getCurrentUser: () => api.get('/auth/me'),
+  login: (credentials) => api.post('/api/auth/login', credentials),
+  register: (userData) => api.post('/api/auth/register', userData),
+  logout: () => api.post('/api/auth/logout'),
+  getCurrentUser: () => api.get('/api/auth/me'),
 };
 
 // Doctor API functions
 export const doctorAPI = {
-  getAllDoctors: () => api.get('/doctors'),
-  getDoctorById: (id) => api.get(`/doctors/${id}`),
-  updateDoctor: (id, data) => api.put(`/doctors/${id}`, data),
-  deleteDoctor: (id) => api.delete(`/doctors/${id}`),
-  registerDoctor: (data) => api.post('/doctors/register', data),
-  loginDoctor: (credentials) => api.post('/doctors/login', credentials),
+  getAllDoctors: () => api.get('/api/doctors'),
+  getDoctorById: (id) => api.get(`/api/doctors/${id}`),
+  createDoctor: (doctorData) => api.post('/api/doctors', doctorData),
+  updateDoctor: (id, doctorData) => api.put(`/api/doctors/${id}`, doctorData),
+  deleteDoctor: (id) => api.delete(`/api/doctors/${id}`),
 };
 
 // Patient API functions
 export const patientAPI = {
-  getAllPatients: () => api.get('/patients'),
-  getPatientById: (id) => api.get(`/patients/${id}`),
-  updatePatient: (id, data) => api.put(`/patients/${id}`, data),
-  deletePatient: (id) => api.delete(`/patients/${id}`),
-  registerPatient: (data) => api.post('/patients/register', data),
-  loginPatient: (credentials) => api.post('/patients/login', credentials),
-};
-
-// Slot API functions
-export const slotAPI = {
-  getAllSlots: () => api.get('/slots'),
-  getSlotsByDoctor: (doctorId) => api.get(`/slots/doctor/${doctorId}`),
-  createSlot: (data) => api.post('/slots', data),
-  updateSlot: (id, data) => api.put(`/slots/${id}`, data),
-  deleteSlot: (id) => api.delete(`/slots/${id}`),
-  bookSlot: (slotId, patientData) => api.post(`/slots/${slotId}/book`, patientData),
+  getAllPatients: () => api.get('/api/patients'),
+  getPatientById: (id) => api.get(`/api/patients/${id}`),
+  createPatient: (patientData) => api.post('/api/patients', patientData),
+  updatePatient: (id, patientData) => api.put(`/api/patients/${id}`, patientData),
+  deletePatient: (id) => api.delete(`/api/patients/${id}`),
 };
 
 // Appointment API functions
 export const appointmentAPI = {
-  getAllAppointments: () => api.get('/appointments'),
-  getAppointmentsByPatient: (patientId) => api.get(`/appointments/patient/${patientId}`),
-  getAppointmentsByDoctor: (doctorId) => api.get(`/appointments/doctor/${doctorId}`),
-  createAppointment: (data) => api.post('/appointments', data),
-  updateAppointment: (id, data) => api.put(`/appointments/${id}`, data),
-  cancelAppointment: (id) => api.delete(`/appointments/${id}`),
+  getAllAppointments: () => api.get('/api/appointments'),
+  getAppointmentById: (id) => api.get(`/api/appointments/${id}`),
+  createAppointment: (appointmentData) => api.post('/api/appointments', appointmentData),
+  updateAppointment: (id, appointmentData) => api.put(`/api/appointments/${id}`, appointmentData),
+  deleteAppointment: (id) => api.delete(`/api/appointments/${id}`),
+  getAppointmentsByDoctor: (doctorId) => api.get(`/api/appointments/doctor/${doctorId}`),
+  getAppointmentsByPatient: (patientId) => api.get(`/api/appointments/patient/${patientId}`),
 };
 
-// Export the main api instance as default
+// Slots API functions
+export const slotAPI = {
+  getAllSlots: () => api.get('/api/slots'),
+  getSlotById: (id) => api.get(`/api/slots/${id}`),
+  createSlot: (slotData) => api.post('/api/slots', slotData),
+  updateSlot: (id, slotData) => api.put(`/api/slots/${id}`, slotData),
+  deleteSlot: (id) => api.delete(`/api/slots/${id}`),
+  getSlotsByDoctor: (doctorId) => api.get(`/api/slots/doctor/${doctorId}`),
+  getAvailableSlots: (doctorId, date) => api.get(`/api/slots/available/${doctorId}/${date}`),
+};
+
+// Default export
 export default api;
