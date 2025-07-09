@@ -1,6 +1,7 @@
 // importing express
 const express = require('express');
 require('dotenv').config();
+require('./connection'); // Import database connection
 const DoctorRouter = require('./routers/DoctorRouter');
 const PatientRouter = require('./routers/Patient')
 const slotRouter = require('./routers/slotRouter')
@@ -14,7 +15,7 @@ const port = process.env.PORT || 5000;
 //middlewares
 
 app.use(cors({
-    origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
+    origin: ['http://localhost:3000', 'http://localhost:3001', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001'],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization']
