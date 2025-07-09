@@ -2,6 +2,19 @@
 
 A comprehensive healthcare platform connecting patients and doctors for appointment booking and management.
 
+## Screenshots
+
+Here are some screenshots showcasing the E-Health Nexus application:
+
+![User Dashboard](assets/screenshots/screenshot1.png)
+*User Dashboard - Main interface for patients to book appointments and view doctors*
+
+![Doctor Management](assets/screenshots/screenshot2.png)
+*Doctor Management - Interface for doctors to manage their appointments and patient interactions*
+
+![Appointment Booking](assets/screenshots/screenshot3.png)
+*Appointment Booking - Step-by-step process for booking medical appointments*
+
 ## Running the Application
 
 1. Start the application using the `start.bat` file:
