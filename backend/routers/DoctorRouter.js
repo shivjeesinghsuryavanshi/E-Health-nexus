@@ -2,6 +2,7 @@ const express = require('express');
 const Model = require('../models/DoctorModel');
 const SlotModel = require('../models/slotModel'); // Import the slot model
 const jwt = require('jsonwebtoken');
+const verifyToken = require('../middlewares/verifyToken');
 
 const router = express.Router();
 
@@ -83,16 +84,10 @@ router.post('/authenticate', (req, res) => {
 });
 
 // Fetch slots by doctor id
-router.get('/slots', async (req, res) => {
+router.get('/slots', verifyToken, async (req, res) => {
     try {
-        // Get token from Authorization header
-        const authHeader = req.headers["authorization"];
-        const token = authHeader && authHeader.split(" ")[1];
-        if (!token) return res.status(401).json({ message: "No token provided" });
-
-        // Decode token to get doctor id
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const doctorId = decoded._id;
+        // Find slots for this doctor
+        const doctorId = req.user._id;
 
         // Find slots for this doctor
         const slots = await SlotModel.find({ doctor: doctorId });
@@ -104,7 +99,7 @@ router.get('/slots', async (req, res) => {
 });
 
 // Update doctor by id
-router.put('/update/:id', async (req, res) => {
+router.put('/update/:id', verifyToken, async (req, res) => {
     try {
         const updatedDoctor = await Model.findByIdAndUpdate(
             req.params.id,
@@ -118,6 +113,20 @@ router.put('/update/:id', async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: "Failed to update doctor", error: err });
+    }
+});
+
+// Delete doctor by id
+router.delete('/delete/:id', verifyToken, async (req, res) => {
+    try {
+        const deletedDoctor = await Model.findByIdAndDelete(req.params.id);
+        if (!deletedDoctor) {
+            return res.status(404).json({ message: "Doctor not found" });
+        }
+        res.status(200).json({ message: "Doctor deleted successfully", doctor: deletedDoctor });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Failed to delete doctor", error: err });
     }
 });
 
